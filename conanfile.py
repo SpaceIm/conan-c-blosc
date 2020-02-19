@@ -9,8 +9,8 @@ class CbloscConan(ConanFile):
     topics = ("conan", "blosc", "compression")
     homepage = "https://github.com/Blosc/c-blosc"
     url = "https://github.com/conan-io/conan-center-index"
-    exports_sources = "CMakeLists.txt"
-    generators = "cmake", "cmake_find_package"
+    exports_sources = ["CMakeLists.txt", "patches/**"]
+    generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -62,34 +62,10 @@ class CbloscConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def build(self):
-        self._patch_sources()
+        for patch in self.conan_data["patches"][self.version]:
+            tools.patch(**patch)
         cmake = self._configure_cmake()
         cmake.build()
-
-    def _patch_sources(self):
-        # Install C-Blosc lib even if it is a subproject
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "endif(BLOSC_INSTALL)", "")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "if(BLOSC_INSTALL)", "")
-
-        # Do not use C-Blosc find<Lib>.cmake files for dependencies
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "set(CMAKE_MODULE_PATH \"${PROJECT_SOURCE_DIR}/cmake\")", "")
-
-        # Do not use zlib environment variable
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "set(ZLIB_ROOT $ENV{ZLIB_ROOT})", "")
-
-        # Use CMake targets
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "${LZ4_LIBRARY}", "\"lz4::lz4\"")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "${SNAPPY_LIBRARY}", "\"Snappy::Snappy\"")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "${ZLIB_LIBRARY}", "\"ZLIB::ZLIB\"")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "blosc", "CMakeLists.txt"),
-                              "${ZSTD_LIBRARY}", "\"zstd::zstd\"")
 
     def _configure_cmake(self):
         if self._cmake:
