@@ -6,7 +6,7 @@ class CbloscConan(ConanFile):
     name = "c-blosc"
     description = "An extremely fast, multi-threaded, meta-compressor library."
     license = "BSD-3-Clause"
-    topics = ("conan", "blosc", "compression")
+    topics = ("conan", "c-blosc", "blosc", "compression")
     homepage = "https://github.com/Blosc/c-blosc"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]
@@ -100,3 +100,5 @@ class CbloscConan(ConanFile):
         self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
+        self.cpp_info.names["cmake_find_package"] = "Blosc"
+        self.cpp_info.names["cmake_find_package_multi"] = "Blosc"
