@@ -44,7 +44,6 @@ class CbloscConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
 
     def requirements(self):
