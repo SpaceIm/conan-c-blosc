@@ -43,9 +43,6 @@ class CbloscConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def configure(self):
-        del self.settings.compiler.cppstd
-
     def requirements(self):
         if self.options.with_lz4:
             self.requires.add("lz4/1.9.2")
