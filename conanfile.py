@@ -24,7 +24,7 @@ class CbloscConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_lz4": True,
-        "with_snappy": True,
+        "with_snappy": False,
         "with_zlib": True,
         "with_zstd": True
     }
