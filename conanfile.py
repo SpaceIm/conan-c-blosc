@@ -43,6 +43,13 @@ class CbloscConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        del self.settings.compiler.cppstd
+        # Snappy is a C++ library with C API, therefore if C-Blosc is shared
+        # we may have to use C++ linker and one of libcxx.
+        if not self.options.with_snappy or not self.options.shared:
+            del self.settings.compiler.libcxx
+
     def requirements(self):
         if self.options.with_lz4:
             self.requires.add("lz4/1.9.2")
