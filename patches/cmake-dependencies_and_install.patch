@@ -143,7 +143,17 @@
  endif (NOT DEACTIVATE_ZSTD)
  
  
-@@ -212,7 +154,6 @@ if(BUILD_STATIC)
+@@ -193,6 +135,9 @@ endif()
+ 
+ if (BUILD_SHARED)
+     target_link_libraries(blosc_shared ${LIBS})
++    if(NOT DEACTIVATE_SNAPPY)
++        set_target_properties(blosc_shared PROPERTIES LINKER_LANGUAGE CXX)
++    endif()
+     target_include_directories(blosc_shared PUBLIC ${BLOSC_INCLUDE_DIRS})
+ endif()
+ 
+@@ -212,7 +157,6 @@ if(BUILD_STATIC)
  endif(BUILD_STATIC)
  
  # install
@@ -151,7 +161,7 @@
      install(FILES blosc.h blosc-export.h DESTINATION include COMPONENT DEV)
      if(BUILD_SHARED)
          install(TARGETS blosc_shared LIBRARY DESTINATION ${lib_dir} ARCHIVE DESTINATION ${lib_dir} RUNTIME DESTINATION bin COMPONENT LIB)
-@@ -220,4 +161,3 @@ if(BLOSC_INSTALL)
+@@ -220,4 +164,3 @@ if(BLOSC_INSTALL)
      if(BUILD_STATIC)
          install(TARGETS blosc_static LIBRARY DESTINATION ${lib_dir} ARCHIVE DESTINATION ${lib_dir} RUNTIME DESTINATION bin COMPONENT DEV)
      endif(BUILD_STATIC)
