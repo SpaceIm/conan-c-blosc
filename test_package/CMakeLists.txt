@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(test_package)
+project(test_package C)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
@@ -8,4 +8,3 @@ conan_basic_setup()
 
 add_executable(${PROJECT_NAME} test_package.c)
 target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX) # only required if both Blosc and Snappy are static
