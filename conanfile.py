@@ -10,7 +10,7 @@ class CbloscConan(ConanFile):
     homepage = "https://github.com/Blosc/c-blosc"
     url = "https://github.com/conan-io/conan-center-index"
     exports_sources = ["CMakeLists.txt", "patches/**"]
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,6 +44,8 @@ class CbloscConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
+        if self.options.shared:
+            del self.options.fPIC
         del self.settings.compiler.cppstd
         del self.settings.compiler.libcxx
 
@@ -62,10 +64,15 @@ class CbloscConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def build(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            tools.patch(**patch)
+        self._patch_sources()
         cmake = self._configure_cmake()
         cmake.build()
+
+    def _patch_sources(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.patch(**patch)
+        # Remove folder containing custom FindLib.cmake files
+        tools.rmdir(os.path.join(self._source_subfolder, "cmake"))
 
     def _configure_cmake(self):
         if self._cmake:
@@ -84,7 +91,8 @@ class CbloscConan(ConanFile):
         self._cmake.definitions["DEACTIVATE_ZSTD"] = not self.options.with_zstd
         self._cmake.definitions["DEACTIVATE_SYMBOLS_CHECK"] = True
         self._cmake.definitions["PREFER_EXTERNAL_LZ4"] = True
-        self._cmake.definitions["PREFER_EXTERNAL_SNAPPY"] = True
+        if tools.Version(self.version) < "1.19.0":
+            self._cmake.definitions["PREFER_EXTERNAL_SNAPPY"] = True
         self._cmake.definitions["PREFER_EXTERNAL_ZLIB"] = True
         self._cmake.definitions["PREFER_EXTERNAL_ZSTD"] = True
         self._cmake.configure(build_folder=self._build_subfolder)
